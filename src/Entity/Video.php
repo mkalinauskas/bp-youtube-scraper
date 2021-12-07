@@ -3,13 +3,22 @@
 namespace App\Entity;
 
 use App\Repository\VideoRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Traits\Timestampable;
 
 /**
  * @ORM\Entity(repositoryClass=VideoRepository::class)
+ * @ORM\HasLifecycleCallbacks
  */
 class Video
 {
+    /*
+     * Timestampable trait
+     */
+    use Timestampable;    
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -32,6 +41,22 @@ class Video
      * @ORM\JoinColumn(nullable=false)
      */
     private $channel;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Tag::class, mappedBy="videos")
+     */
+    private $tags;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Statistic::class, mappedBy="video", orphanRemoval=true)
+     */
+    private $statistics;
+
+    public function __construct()
+    {
+        $this->tags = new ArrayCollection();
+        $this->statistics = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -70,6 +95,63 @@ class Video
     public function setChannel(?Channel $channel): self
     {
         $this->channel = $channel;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Tag[]
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag): self
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags[] = $tag;
+            $tag->addVideo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): self
+    {
+        if ($this->tags->removeElement($tag)) {
+            $tag->removeVideo($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Statistic[]
+     */
+    public function getStatistics(): Collection
+    {
+        return $this->statistics;
+    }
+
+    public function addStatistic(Statistic $statistic): self
+    {
+        if (!$this->statistics->contains($statistic)) {
+            $this->statistics[] = $statistic;
+            $statistic->setVideo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatistic(Statistic $statistic): self
+    {
+        if ($this->statistics->removeElement($statistic)) {
+            // set the owning side to null (unless already changed)
+            if ($statistic->getVideo() === $this) {
+                $statistic->setVideo(null);
+            }
+        }
 
         return $this;
     }

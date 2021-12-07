@@ -2,20 +2,17 @@
 
 namespace App\Service;
 
-/**
- * Class YoutubeService
- *
- * This is the google client that is used by almost every api
- */
 class YoutubeService
 {
+    const MAX_RESULTS = 50;
+
     /**
      * @var \Google_Service_YouTube client
      */
     private $client;
 
     /**
-     * @param array $config
+     * @param GoogleClient $googleClient
      */
     public function __construct(GoogleClient $googleClient)
     {
@@ -36,4 +33,44 @@ class YoutubeService
 
         return $response->getItems()[0];
     }
+
+   /**
+     * https://developers.google.com/youtube/v3/docs/search/list
+     */    
+    public function getChannelVideos(string $channelId, string $pageToken = '')
+    {
+        $params = [
+            'channelId' => $channelId,
+            'maxResults' => SELF::MAX_RESULTS,
+            'type' => 'video',
+            'order' => 'date'
+        ];
+
+        if ($pageToken) {
+            $params['pageToken'] = $pageToken;
+        }
+
+        $response = $this->client->search->listSearch(
+            'snippet',
+            $params
+        );
+
+        return $response;
+    }
+
+   /**
+     * https://developers.google.com/youtube/v3/docs/videos/list
+     * @param string $ids 
+     */   
+    public function getVideoStatistics(string $ids)
+    {
+        $response = $this->client->videos->listVideos(
+            'statistics,snippet',
+            [
+                'id' => $ids,
+            ]
+        );
+
+        return $response->getItems();
+    }     
 }
