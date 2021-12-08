@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Channel;
+use App\Exception\ChannelNotFoundException;
 
 class YoutubeScraper
 {
@@ -31,7 +32,8 @@ class YoutubeScraper
 
     /**
      * https://developers.google.com/youtube/v3/docs/channels/list
-     * THROW EXCEPTION
+     * 
+     * @throws ChannelNotFoundException
      */
     public function scrapeChannel(string $channelId): Channel
     {
@@ -40,10 +42,14 @@ class YoutubeScraper
         if (!$channel) {
             $response = $this->youtubeService->getChannel($channelId);
 
+            if (empty($response)) {
+                throw new ChannelNotFoundException();
+            }
+
             $channel = $this->channelManager->create(
                 [
-                    'channelId' => $response->getId(),
-                    'title'     => $response->getSnippet()->getTitle(),                    
+                    'channelId' => $response[0]->getId(),
+                    'title'     => $response[0]->getSnippet()->getTitle(),                    
                 ]
             );            
         }
@@ -56,41 +62,41 @@ class YoutubeScraper
      */    
     public function scrapeChannelVideos(Channel $channel, string $pageToken = '')
     {
-        $searchListResponse = $this->youtubeService->getChannelVideos($channel->getChannelId(), $pageToken);
+        $searchListResponse = $this->youtubeService->searchChannelVideos($channel->getChannelId(), $pageToken);
 
         $ids = $this->generateVideoIdString($searchListResponse->getItems());
 
-        $videoStatistics = $this->youtubeService->getVideoStatistics($ids);
+        $videoListResponse = $this->youtubeService->getVideoList($ids);
 
-        foreach($videoStatistics as $videoItem) {
-            $video = $this->videoManager->getVideo(['video_id' => $videoItem->getId()]);
+        foreach($videoListResponse as $listItem) {
+            $video = $this->videoManager->getVideo(['video_id' => $listItem->getId()]);
 
             if (!$video) {
-                $video = $this->videoManager->create($channel, $videoItem->getSnippet()->getTitle(), $videoItem->getId());
+                $video = $this->videoManager->create($channel, $listItem->getSnippet()->getTitle(), $listItem->getId());
             }
 
-            if ($videoItem->getSnippet()->getTags()) {
-                $tags = [];
-                foreach ($videoItem->getSnippet()->getTags() as $item) {
+            if ($listItem->getSnippet()->getTags()) {
+                foreach ($listItem->getSnippet()->getTags() as $item) {
                     $tag = $this->tagManager->getTag(['name' => $item]);
     
                     if (!$tag) {
                         $tag = $this->tagManager->create($video, $item);
-                        $tags[] = $tag;
                     } 
                 }               
             }
-
-            $this->statisticManager->create(
-                $video,
-                [
-                    'comment_count' => $videoItem->getStatistics()->getCommentCount(),
-                    'dislike_count' => $videoItem->getStatistics()->getDislikeCount(),
-                    'favorite_count' => $videoItem->getStatistics()->getFavoriteCount(),
-                    'like_count' => $videoItem->getStatistics()->getLikeCount(),
-                    'view_count' => $videoItem->getStatistics()->getViewCount()
-                ]
-            );         
+            
+            if ($listItem->getStatistics()) {
+                $this->statisticManager->create(
+                    $video,
+                    [
+                        'comment_count' => $listItem->getStatistics()->getCommentCount(),
+                        'dislike_count' => $listItem->getStatistics()->getDislikeCount(),
+                        'favorite_count' => $listItem->getStatistics()->getFavoriteCount(),
+                        'like_count' => $listItem->getStatistics()->getLikeCount(),
+                        'view_count' => $listItem->getStatistics()->getViewCount()
+                    ]
+                ); 
+            }        
         }
 
         if ($searchListResponse->getNextPageToken()) {
@@ -100,7 +106,7 @@ class YoutubeScraper
        return;
     }  
     
-    private function generateVideoIdString(array $videos)
+    private function generateVideoIdString(array $videos): string
     {
         $ids = [];
         foreach($videos as $video)

@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Dashboard {% endblock %}
+
+{% block body %} 
+<div class="container">
+    <table class="table">
+    <thead>
+        <tr>
+        <th scope="col">Channel</th>
+        <th scope="col">Title</th>
+        <th scope="col">Video ID</th>
+        <th class="d-none" scope="col">Tags</th>
+        <th scope="col">Performance</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for video in videos %}
+            <tr>
+                <td> {{ video.channel.title }} </td>
+                <td> {{ video.title }} </td>
+                <td> {{ video.videoId }}</td>
+                <td class="d-none"> 
+                    {% for tag in video.tags %}
+                        {{ tag.name }}
+                    {% endfor %}
+                </td>
+                <td> {{ video.performance }} </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>   
+</div>
+
+<script type="text/javascript">
+$(document).ready( function () {
+
+    var table = $('.table').DataTable({
+        columnDefs: [
+            {targets: [0, 1, 2, 4], searchable: false}
+        ]                   
+    });
+
+    $.ajax({
+        url: "api/tags",
+        type: "GET",
+        success: function (tags) {
+            $( "#DataTables_Table_0_filter input" ).autocomplete({
+                source: tags,
+                select: function (a,b) {
+                    var selectedVal = b.item.value
+                    table.search(selectedVal).draw();
+                }                
+             }); 
+            }
+        });        
+} );
+</script>
+{% endblock %}

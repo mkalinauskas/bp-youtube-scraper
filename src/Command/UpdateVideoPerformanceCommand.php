@@ -2,33 +2,33 @@
 
 namespace App\Command;
 
-use App\Service\PerformanceService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use App\Service\YoutubeScraper;
-
+use App\Service\PerformanceService;
+use App\Service\ChannelManager;
 
 #[AsCommand(
-    name: 'app:scrape-youtube-channel',
+    name: 'app:update-video-performance',
     description: 'Add a short description for your command',
 )]
-class ScrapeYoutubeChannelCommand extends Command
+class UpdateVideoPerformanceCommand extends Command
 {
-    private $youtubeScraper;
-
     private $performanceService;
 
-    public function __construct(YoutubeScraper $youtubeScraper,
-                                PerformanceService $performanceService)
+    private $channelManager;
+
+    public function __construct(PerformanceService $performanceService,
+                                ChannelManager $channelManager)
     {
         parent::__construct();
-        $this->youtubeScraper = $youtubeScraper;
         $this->performanceService = $performanceService;
-    }    
+        $this->channelManager = $channelManager;
+    }      
 
     protected function configure(): void
     {
@@ -42,19 +42,10 @@ class ScrapeYoutubeChannelCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $channelId = $input->getArgument('channel_id');
 
-        $io->info('Scraping started');
+        $channel = $this->channelManager->getChannel(['channel_id' => $channelId]);
 
-        try {
-            $channel = $this->youtubeScraper->scrapeChannel($channelId);
-            $this->youtubeScraper->scrapeChannelVideos($channel);
-            $this->performanceService->updateChannelVideoPerformance($channel);
-        } catch(\Exception $ex) {
-            $io->error($ex->getMessage());
-            return Command::FAILURE;
-        }
-
-        $io->info('Scraping for channel '.$channelId.' ended succesfully');
-
+        $this->performanceService->updateVideosPerformance($channel);
+        
         return Command::SUCCESS;
     }
 }

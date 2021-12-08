@@ -52,6 +52,11 @@ class Video
      */
     private $statistics;
 
+    /**
+     * @ORM\Column(type="decimal", nullable=true, scale=2)
+     */
+    private $performance;
+
     public function __construct()
     {
         $this->tags = new ArrayCollection();
@@ -152,6 +157,18 @@ class Video
                 $statistic->setVideo(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPerformance(): ?float
+    {
+        return $this->performance;
+    }
+
+    public function setPerformance(?float $performance): self
+    {
+        $this->performance = $performance;
 
         return $this;
     }

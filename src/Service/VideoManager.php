@@ -32,4 +32,13 @@ class VideoManager
 
         return $video;
     }
+
+    public function update(Video $video, $andFlush = false)
+    {
+        $this->em->persist($video);
+
+        if ($andFlush) {
+            $this->em->flush();
+        }
+    }
 }

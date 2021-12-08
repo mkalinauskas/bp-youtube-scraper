@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Statistic;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\Video;
 
 /**
  * @method Statistic|null find($id, $lockMode = null, $lockVersion = null)
@@ -19,32 +20,22 @@ class StatisticRepository extends ServiceEntityRepository
         parent::__construct($registry, Statistic::class);
     }
 
-    // /**
-    //  * @return Statistic[] Returns an array of Statistic objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findFirstHourVideoViews(Video $video)
     {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $conn = $this->getEntityManager()->getConnection();
 
-    /*
-    public function findOneBySomeField($value): ?Statistic
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $sql = 'SELECT view_count
+                FROM statistic
+                WHERE video_id = :video_id AND timestampdiff(second, :video_created_at, created_at)/3600 <= 2';
+
+        $stmt = $conn->prepare($sql);
+        $result = $stmt->execute(
+            [
+                'video_id' => $video->getId(),
+                'video_created_at' => $video->getCreatedAt()->format('Y-m-d H:i:s')
+            ]
+        );
+
+        return $result->fetchAllAssociative();
     }
-    */
 }

@@ -31,13 +31,13 @@ class YoutubeService
             ]
         ); 
 
-        return $response->getItems()[0];
+        return $response->getItems();
     }
 
    /**
      * https://developers.google.com/youtube/v3/docs/search/list
      */    
-    public function getChannelVideos(string $channelId, string $pageToken = '')
+    public function searchChannelVideos(string $channelId, string $pageToken = '')
     {
         $params = [
             'channelId' => $channelId,
@@ -62,7 +62,7 @@ class YoutubeService
      * https://developers.google.com/youtube/v3/docs/videos/list
      * @param string $ids 
      */   
-    public function getVideoStatistics(string $ids)
+    public function getVideoList(string $ids)
     {
         $response = $this->client->videos->listVideos(
             'statistics,snippet',
