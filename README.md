@@ -10,7 +10,7 @@ git clone https://github.com/mkalinauskas/bp-youtube-scraper.git
 cd bp-youtube-scraper
 composer install
 ```
-Set up your environments variables in .env (DATABASE_URL and GOOGLE_API_KEY)
+Set up your environments variables in .env (DATABASE_URL and GOOGLE_API_KEY).
 If needed, create your api key here: https://console.cloud.google.com/apis/credentials
 
 Run:
@@ -20,7 +20,7 @@ php bin/console doctrine:migrations:migrate
 ```
 
 ### Scraping
-Run this command to fetch Youtube channel data (videos, statistics):
+Run this command to fetch Youtube channel data (videos, tags, statistics):
 ```
 php bin/console app:scrape-youtube-channel channel_id
 ```
