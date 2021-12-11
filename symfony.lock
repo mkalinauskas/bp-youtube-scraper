@@ -127,8 +127,20 @@
     "paragonie/random_compat": {
         "version": "v9.99.100"
     },
+    "phpdocumentor/reflection-common": {
+        "version": "2.2.0"
+    },
+    "phpdocumentor/reflection-docblock": {
+        "version": "5.3.0"
+    },
+    "phpdocumentor/type-resolver": {
+        "version": "1.5.1"
+    },
     "phpseclib/phpseclib": {
         "version": "3.0.12"
+    },
+    "phpstan/phpdoc-parser": {
+        "version": "1.2.0"
     },
     "psr/cache": {
         "version": "3.0.0"
@@ -260,6 +272,12 @@
     "symfony/polyfill-php81": {
         "version": "v1.23.0"
     },
+    "symfony/property-access": {
+        "version": "v6.0.0"
+    },
+    "symfony/property-info": {
+        "version": "v6.0.0"
+    },
     "symfony/proxy-manager-bridge": {
         "version": "v6.0.0"
     },
@@ -278,6 +296,9 @@
     },
     "symfony/runtime": {
         "version": "v6.0.0"
+    },
+    "symfony/serializer": {
+        "version": "v6.0.1"
     },
     "symfony/service-contracts": {
         "version": "v3.0.0"
@@ -318,5 +339,8 @@
     },
     "twig/twig": {
         "version": "v3.3.4"
+    },
+    "webmozart/assert": {
+        "version": "1.10.0"
     }
 }

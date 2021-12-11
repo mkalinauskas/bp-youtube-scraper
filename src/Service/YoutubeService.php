@@ -4,7 +4,7 @@ namespace App\Service;
 
 class YoutubeService
 {
-    const MAX_RESULTS = 50;
+    private const MAX_RESULTS = 50;
 
     /**
      * @var \Google_Service_YouTube client
@@ -26,22 +26,22 @@ class YoutubeService
     {
         $response = $this->client->channels->listChannels(
             'snippet',
-            [ 
+            [
                 'id' => $channelId
             ]
-        ); 
+        );
 
         return $response->getItems();
     }
 
    /**
      * https://developers.google.com/youtube/v3/docs/search/list
-     */    
+     */
     public function searchChannelVideos(string $channelId, string $pageToken = '')
     {
         $params = [
             'channelId' => $channelId,
-            'maxResults' => SELF::MAX_RESULTS,
+            'maxResults' => self::MAX_RESULTS,
             'type' => 'video',
             'order' => 'date'
         ];
@@ -60,8 +60,7 @@ class YoutubeService
 
    /**
      * https://developers.google.com/youtube/v3/docs/videos/list
-     * @param string $ids 
-     */   
+     */
     public function getVideoList(string $ids)
     {
         $response = $this->client->videos->listVideos(
@@ -72,5 +71,5 @@ class YoutubeService
         );
 
         return $response->getItems();
-    }     
+    }
 }

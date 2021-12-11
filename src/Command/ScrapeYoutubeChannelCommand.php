@@ -2,7 +2,6 @@
 
 namespace App\Command;
 
-use App\Service\PerformanceService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -10,11 +9,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use App\Service\YoutubeScraper;
-
+use App\Service\PerformanceService;
 
 #[AsCommand(
     name: 'app:scrape-youtube-channel',
-    description: 'Add a short description for your command',
+    description: 'Scrape YouTube channel, its videos and statistics',
 )]
 class ScrapeYoutubeChannelCommand extends Command
 {
@@ -22,18 +21,19 @@ class ScrapeYoutubeChannelCommand extends Command
 
     private $performanceService;
 
-    public function __construct(YoutubeScraper $youtubeScraper,
-                                PerformanceService $performanceService)
-    {
+    public function __construct(
+        YoutubeScraper $youtubeScraper,
+        PerformanceService $performanceService
+    ) {
         parent::__construct();
         $this->youtubeScraper = $youtubeScraper;
         $this->performanceService = $performanceService;
-    }    
+    }
 
     protected function configure(): void
     {
         $this
-            ->addArgument('channel_id', InputArgument::REQUIRED, 'Argument description')
+            ->addArgument('channel_id', InputArgument::REQUIRED, 'YouTube channel id (eg. UCsBjURrPoezykLs9EqgamOA)')
         ;
     }
 
@@ -48,12 +48,12 @@ class ScrapeYoutubeChannelCommand extends Command
             $channel = $this->youtubeScraper->scrapeChannel($channelId);
             $this->youtubeScraper->scrapeChannelVideos($channel);
             $this->performanceService->updateChannelVideoPerformance($channel);
-        } catch(\Exception $ex) {
+        } catch (\Exception $ex) {
             $io->error($ex->getMessage());
             return Command::FAILURE;
         }
 
-        $io->info('Scraping for channel '.$channelId.' ended succesfully');
+        $io->info('Scraping for channel ' . $channelId . ' ended succesfully');
 
         return Command::SUCCESS;
     }

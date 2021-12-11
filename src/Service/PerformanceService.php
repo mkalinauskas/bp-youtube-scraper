@@ -12,9 +12,10 @@ class PerformanceService
 
     private $em;
 
-    public function __construct(VideoManager $videoManager,
-                                EntityManagerInterface $em)
-    {
+    public function __construct(
+        VideoManager $videoManager,
+        EntityManagerInterface $em
+    ) {
         $this->videoManager = $videoManager;
         $this->em = $em;
     }
@@ -29,18 +30,16 @@ class PerformanceService
             if (count($videoFirstHourViews) > 1) {
                 $lastElement = end($videoFirstHourViews)['view_count'];
                 $firstElement = $videoFirstHourViews[0]['view_count'];
-                $views = $lastElement - $firstElement;   
-                $channelFirstHourViews[$video->getVideoId()] = $views;          
-            } 
+                $views = $lastElement - $firstElement;
+                $channelFirstHourViews[$video->getVideoId()] = $views;
+            }
         }
 
         $channelMedian = $this->getMedianNumberFromArray(array_values($channelFirstHourViews));
 
-        foreach($videos as $video)
-        {
+        foreach ($videos as $video) {
             $video->setPerformance(0);
-            if(isset($channelFirstHourViews[$video->getVideoId()]))
-            {
+            if (isset($channelFirstHourViews[$video->getVideoId()])) {
                 $video->setPerformance($channelFirstHourViews[$video->getVideoId()] / $channelMedian);
             }
             $this->videoManager->update($video, true);
@@ -49,18 +48,18 @@ class PerformanceService
         return;
     }
 
-    private function getMedianNumberFromArray(array $arr)
+    private function getMedianNumberFromArray(array $arr): int
     {
         sort($arr);
         $num = count($arr);
         $middleVal = floor(($num - 1) / 2);
-        if($num % 2) { 
+        if ($num % 2) {
             return $arr[$middleVal];
         } else {
             $lowMid = $arr[$middleVal];
             $highMid = $arr[$middleVal + 1];
-            
+
             return (($lowMid + $highMid) / 2);
-        }           
+        }
     }
 }

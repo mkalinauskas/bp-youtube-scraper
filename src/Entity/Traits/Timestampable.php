@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Adds created at and updated at timestamps to entities.
  * Entities using this must have HasLifecycleCallbacks annotation.
- * 
+ *
  * Credits: https://gist.github.com/muzfr7/7ec1b726702e3d353e83246dce22eab3
  *
  * @ORM\HasLifecycleCallbacks

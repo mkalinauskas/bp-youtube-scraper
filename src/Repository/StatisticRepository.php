@@ -2,10 +2,10 @@
 
 namespace App\Repository;
 
-use App\Entity\Statistic;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Video;
+use App\Entity\Statistic;
 
 /**
  * @method Statistic|null find($id, $lockMode = null, $lockVersion = null)

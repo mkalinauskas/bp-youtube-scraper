@@ -17,12 +17,13 @@ class YoutubeScraper
 
     private $statisticManager;
 
-    public function __construct(YoutubeService $youtubeService,
-                                ChannelManager $channelManager,
-                                VideoManager $videoManager,
-                                TagManager $tagManager,
-                                StatisticManager $statisticManager)
-    {
+    public function __construct(
+        YoutubeService $youtubeService,
+        ChannelManager $channelManager,
+        VideoManager $videoManager,
+        TagManager $tagManager,
+        StatisticManager $statisticManager
+    ) {
         $this->youtubeService = $youtubeService;
         $this->channelManager = $channelManager;
         $this->videoManager = $videoManager;
@@ -32,7 +33,7 @@ class YoutubeScraper
 
     /**
      * https://developers.google.com/youtube/v3/docs/channels/list
-     * 
+     *
      * @throws ChannelNotFoundException
      */
     public function scrapeChannel(string $channelId): Channel
@@ -49,9 +50,9 @@ class YoutubeScraper
             $channel = $this->channelManager->create(
                 [
                     'channelId' => $response[0]->getId(),
-                    'title'     => $response[0]->getSnippet()->getTitle(),                    
+                    'title'     => $response[0]->getSnippet()->getTitle(),
                 ]
-            );            
+            );
         }
 
         return $channel;
@@ -59,7 +60,7 @@ class YoutubeScraper
 
    /**
      * https://developers.google.com/youtube/v3/docs/search/list
-     */    
+     */
     public function scrapeChannelVideos(Channel $channel, string $pageToken = '')
     {
         $searchListResponse = $this->youtubeService->searchChannelVideos($channel->getChannelId(), $pageToken);
@@ -68,7 +69,7 @@ class YoutubeScraper
 
         $videoListResponse = $this->youtubeService->getVideoList($ids);
 
-        foreach($videoListResponse as $listItem) {
+        foreach ($videoListResponse as $listItem) {
             $video = $this->videoManager->getVideo(['video_id' => $listItem->getId()]);
 
             if (!$video) {
@@ -78,13 +79,13 @@ class YoutubeScraper
             if ($listItem->getSnippet()->getTags()) {
                 foreach ($listItem->getSnippet()->getTags() as $item) {
                     $tag = $this->tagManager->getTag(['name' => $item]);
-    
+
                     if (!$tag) {
                         $tag = $this->tagManager->create($video, $item);
-                    } 
-                }               
+                    }
+                }
             }
-            
+
             if ($listItem->getStatistics()) {
                 $this->statisticManager->create(
                     $video,
@@ -95,23 +96,22 @@ class YoutubeScraper
                         'like_count' => $listItem->getStatistics()->getLikeCount(),
                         'view_count' => $listItem->getStatistics()->getViewCount()
                     ]
-                ); 
-            }        
+                );
+            }
         }
 
         if ($searchListResponse->getNextPageToken()) {
-           return $this->scrapeChannelVideos($channel, $searchListResponse->getNextPageToken());
+            return $this->scrapeChannelVideos($channel, $searchListResponse->getNextPageToken());
         }
-       
-       return;
-    }  
-    
+
+        return;
+    }
+
     private function generateVideoIdString(array $videos): string
     {
         $ids = [];
-        foreach($videos as $video)
-        {
-            $ids[] = $video['id']['videoId'];
+        foreach ($videos as $video) {
+            $ids[] = $video->getId()->getVideoId();
         }
 
         return implode(',', $ids);

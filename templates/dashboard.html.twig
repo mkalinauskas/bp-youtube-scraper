@@ -44,9 +44,12 @@ $(document).ready( function () {
     $.ajax({
         url: "api/tags",
         type: "GET",
-        success: function (tags) {
+        success: function (tags) {            
+            var data = [];
+            JSON.parse(tags).forEach(element => data.push(element.name));
+
             $( "#DataTables_Table_0_filter input" ).autocomplete({
-                source: tags,
+                source: data,            
                 select: function (a,b) {
                     var selectedVal = b.item.value
                     table.search(selectedVal).draw();

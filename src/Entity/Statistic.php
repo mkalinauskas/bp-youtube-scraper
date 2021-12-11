@@ -15,8 +15,8 @@ class Statistic
     /*
      * Timestampable trait
      */
-    use Timestampable;    
-    
+    use Timestampable;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

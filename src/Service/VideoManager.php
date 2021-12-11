@@ -33,7 +33,7 @@ class VideoManager
         return $video;
     }
 
-    public function update(Video $video, $andFlush = false)
+    public function update(Video $video, $andFlush = false): void
     {
         $this->em->persist($video);
 

@@ -17,7 +17,7 @@ class Video
     /*
      * Timestampable trait
      */
-    use Timestampable;    
+    use Timestampable;
 
     /**
      * @ORM\Id
