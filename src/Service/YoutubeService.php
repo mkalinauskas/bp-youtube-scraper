@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-class YoutubeService
+class YoutubeService implements YoutubeServiceInterface
 {
     private const MAX_RESULTS = 50;
 

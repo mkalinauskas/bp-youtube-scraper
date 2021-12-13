@@ -18,7 +18,7 @@ class YoutubeScraper
     private $statisticManager;
 
     public function __construct(
-        YoutubeService $youtubeService,
+        YoutubeServiceInterface $youtubeService,
         ChannelManager $channelManager,
         VideoManager $videoManager,
         TagManager $tagManager,
@@ -97,7 +97,7 @@ class YoutubeScraper
                         'view_count' => $listItem->getStatistics()->getViewCount()
                     ]
                 );
-            }
+            }          
         }
 
         if ($searchListResponse->getNextPageToken()) {

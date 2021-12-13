@@ -31,7 +31,10 @@ class PerformanceService
                 $lastElement = end($videoFirstHourViews)['view_count'];
                 $firstElement = $videoFirstHourViews[0]['view_count'];
                 $views = $lastElement - $firstElement;
-                $channelFirstHourViews[$video->getVideoId()] = $views;
+                
+                if ($views !== 0) {
+                    $channelFirstHourViews[$video->getVideoId()] = $views;
+                }
             }
         }
 
